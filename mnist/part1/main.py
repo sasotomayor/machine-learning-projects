@@ -16,7 +16,7 @@ from kernel import *
 # Load MNIST data:
 train_x, train_y, test_x, test_y = get_MNIST_data()
 # Plot the first 20 images of the training set.
-plot_images(train_x[0:20, :])
+#plot_images(train_x[0:20, :])
 
 #######################################################################
 # 2. Linear Regression with Closed Form Solution
@@ -40,8 +40,10 @@ def run_linear_regression_on_MNIST(lambda_factor=1):
     return test_error
 
 
-# Don't run this until the relevant functions in linear_regression.py have been fully implemented.
+# Checking Linear regression for different lambdas
 print('Linear Regression test_error =', run_linear_regression_on_MNIST(lambda_factor=1))
+print('Linear Regression test_error =', run_linear_regression_on_MNIST(lambda_factor=0.1))
+print('Linear Regression test_error =', run_linear_regression_on_MNIST(lambda_factor=0.01))
 
 
 #######################################################################
@@ -118,9 +120,9 @@ def run_softmax_on_MNIST(temp_parameter=1):
 
 
 print('softmax test_error=', run_softmax_on_MNIST(temp_parameter=1))
+print('softmax test_error=', run_softmax_on_MNIST(temp_parameter=0.5))
+print('softmax test_error=', run_softmax_on_MNIST(temp_parameter=2))
 
-# TODO: Find the error rate for temp_parameter = [.5, 1.0, 2.0]
-#      Remember to return the tempParameter to 1, and re-run run_softmax_on_MNIST
 
 #######################################################################
 # 6. Changing Labels
@@ -134,11 +136,18 @@ def run_softmax_on_MNIST_mod3(temp_parameter=1):
 
     See run_softmax_on_MNIST for more info.
     """
-    # YOUR CODE HERE
-    raise NotImplementedError
 
+    train_x, train_y, test_x, test_y = get_MNIST_data()
+    train_y_mod3, test_y_mod3 = update_y(train_y, test_y)
+    theta, cost_function_history = softmax_regression(train_x, train_y, temp_parameter, alpha=0.3, lambda_factor=1.0e-4, k=10, num_iterations=150)
+    plot_cost_function_over_time(cost_function_history)
+    test_error = compute_test_error_mod3(test_x, test_y_mod3, theta, temp_parameter)
 
-# TODO: Run run_softmax_on_MNIST_mod3(), report the error rate
+    write_pickle_data(theta, "./theta.pkl.gz")
+
+    return test_error
+
+print('softmax test_error_mod3=', run_softmax_on_MNIST_mod3(temp_parameter=1))
 
 
 #######################################################################
