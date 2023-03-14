@@ -8,6 +8,7 @@ from svm import *
 from softmax import *
 from features import *
 from kernel import *
+from sklearn.svm import SVC
 
 #######################################################################
 # 1. Introduction
@@ -50,7 +51,6 @@ print('Linear Regression test_error =', run_linear_regression_on_MNIST(lambda_fa
 # 3. Support Vector Machine
 #######################################################################
 
-# TODO: first fill out functions in svm.py, or the functions below will not work
 
 def run_svm_one_vs_rest_on_MNIST():
     """
@@ -156,9 +156,6 @@ print('softmax test_error_mod3=', run_softmax_on_MNIST_mod3(temp_parameter=1))
 
 ## Dimensionality reduction via PCA ##
 
-# TODO: First fill out the PCA functions in features.py as the below code depends on them.
-
-
 n_components = 18
 
 ###Correction note:  the following 4 lines have been modified since release.
@@ -173,6 +170,12 @@ test_pca = project_onto_PC(test_x, pcs, n_components, feature_means)
 
 # TODO: Train your softmax regression model using (train_pca, train_y)
 #       and evaluate its accuracy on (test_pca, test_y).
+train_x, train_y, test_x, test_y = get_MNIST_data()
+theta, cost_function_history = softmax_regression(train_pca, train_y, 1, alpha=0.3, lambda_factor=1.0e-4, k=10, num_iterations=150)
+test_error = compute_test_error(test_pca, test_y, theta, 1)
+print(f'Softmax test error on 18-dimensional PCA : {test_error}')
+
+
 
 
 # TODO: Use the plot_PC function in features.py to produce scatterplot
@@ -196,15 +199,28 @@ plot_images(train_x[1, ])
 
 ## Cubic Kernel ##
 # TODO: Find the 10-dimensional PCA representation of the training and test set
-
-
-# TODO: First fill out cubicFeatures() function in features.py as the below code requires it.
+train_pca10 = project_onto_PC(train_x, pcs, 10, feature_means)
+test_pca10 = project_onto_PC(test_x, pcs, 10, feature_means)
 
 train_cube = cubic_features(train_pca10)
 test_cube = cubic_features(test_pca10)
 # train_cube (and test_cube) is a representation of our training (and test) data
 # after applying the cubic kernel feature mapping to the 10-dimensional PCA representations.
 
+theta, cost_function_history = softmax_regression(train_cube, train_y, 1, alpha=0.3, lambda_factor=1.0e-4, k=10, num_iterations=150)
+test_error = compute_test_error(test_cube, test_y, theta, 1)
+print(f'Softmax test error on 10-dimensional PCA with cubic kernel: {test_error}')
 
-# TODO: Train your softmax regression model using (train_cube, train_y)
-#       and evaluate its accuracy on (test_cube, test_y).
+
+poly_svc = SVC(random_state=0, degree=3, kernel='poly')
+poly_svc.fit(train_pca10, train_y)
+predictions_poly_svc = poly_svc.predict(test_pca10)
+
+print(f'Polynomial polynomial svm test error on 10-dimensional PCA with cubic kernel: {compute_test_error_svm(test_y, predictions_poly_svc)}')
+
+
+rbf_svc = SVC(random_state=0, degree=3, kernel='rbf')
+rbf_svc.fit(train_pca10, train_y)
+predictions_rbf_svc = rbf_svc.predict(test_pca10)
+
+print(f'Polynomial rbf svm test error on 10-dimensional PCA with cubic kernel: {compute_test_error_svm(test_y, predictions_rbf_svc)}')

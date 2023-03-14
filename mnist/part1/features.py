@@ -6,17 +6,12 @@ def project_onto_PC(X, pcs, n_components, feature_means):
     """
     Given principal component vectors pcs = principal_components(X)
     this function returns a new data array in which each sample in X
-    has been projected onto the first n_components principcal components.
+    has been projected onto the first n_components principal components.
     """
-    # TODO: first center data using the feature_means
-    # TODO: Return the projection of the centered dataset
-    #       on the first n_components principal components.
-    #       This should be an array with dimensions: n x n_components.
-    # Hint: these principal components = first n_components columns
-    #       of the eigenvectors returned by principal_components().
-    #       Note that each eigenvector is already be a unit-vector,
-    #       so the projection may be done using matrix multiplication.
-    raise NotImplementedError
+    centered_X = X - feature_means
+    projection = centered_X.dot(pcs[:, :n_components])
+
+    return projection
 
 
 ### Functions which are already complete, for you to use ###
