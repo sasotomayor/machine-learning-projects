@@ -9,9 +9,10 @@ import torch.nn.functional as F
 import torch.nn as nn
 import sys
 sys.path.append("..")
-import utils
+#import utils
 from utils import *
 from train_utils import batchify_data, run_epoch, train_model
+
 
 def main():
     # Load the dataset
@@ -30,6 +31,7 @@ def main():
     X_train = [X_train[i] for i in permutation]
     y_train = [y_train[i] for i in permutation]
 
+    #0.978275
     # Split dataset into batches
     batch_size = 32
     train_batches = batchify_data(X_train, y_train, batch_size)
@@ -39,9 +41,9 @@ def main():
     #################################
     ## Model specification TODO
     model = nn.Sequential(
-              nn.Linear(784, 10),
+              nn.Linear(784, 128),
               nn.ReLU(),
-              nn.Linear(10, 10),
+              nn.Linear(128, 10),
             )
     lr=0.1
     momentum=0

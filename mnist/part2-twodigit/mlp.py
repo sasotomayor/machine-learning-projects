@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from train_utils import batchify_data, run_epoch, train_model, Flatten
 import utils_multiMNIST as U
-path_to_data_dir = '../Datasets/'
+path_to_data_dir = '/Users/ssotomayorba/Documents/Personal/projects/machine-learning-projects/mnist/Datasets/'
 use_mini_dataset = True
 
 batch_size = 64
@@ -13,19 +13,25 @@ nb_epoch = 30
 num_classes = 10
 img_rows, img_cols = 42, 28 # input image dimensions
 
+#Loss = 0.541352 + 0.274112
 class MLP(nn.Module):
 
     def __init__(self, input_dimension):
         super(MLP, self).__init__()
         self.flatten = Flatten()
-        # TODO initialize model layers here
+
+        self.layer_stack = nn.Sequential(
+              nn.Linear(input_dimension, 128),
+              nn.ReLU(),
+              nn.Dropout(0.5),
+              nn.Linear(128, 20),
+              nn.ReLU()
+            )
 
     def forward(self, x):
         xf = self.flatten(x)
-
-        # TODO use model layers to predict the two digits
-
-        return out_first_digit, out_second_digit
+        output = self.layer_stack(xf)
+        return output[:, :10], output[:, 10:]
 
 def main():
     X_train, y_train, X_test, y_test = U.get_data(path_to_data_dir, use_mini_dataset)
@@ -49,7 +55,7 @@ def main():
 
     # Load model
     input_dimension = img_rows * img_cols
-    model = MLP(input_dimension) # TODO add proper layers to MLP class above
+    model = MLP(input_dimension)
 
     # Train
     train_model(train_batches, dev_batches, model)

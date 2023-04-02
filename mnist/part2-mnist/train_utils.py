@@ -65,7 +65,7 @@ def run_epoch(data, model, optimizer):
     for batch in tqdm(data):
         # Grab x and y
         x, y = batch['x'], batch['y']
-
+        
         # Get output predictions
         out = model(x)
 

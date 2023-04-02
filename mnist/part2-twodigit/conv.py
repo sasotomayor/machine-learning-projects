@@ -4,7 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from train_utils import batchify_data, run_epoch, train_model, Flatten
 import utils_multiMNIST as U
-path_to_data_dir = '../Datasets/'
+path_to_data_dir = '/Users/ssotomayorba/Documents/Personal/projects/machine-learning-projects/mnist/Datasets/'
 use_mini_dataset = True
 
 batch_size = 64
@@ -19,13 +19,23 @@ class CNN(nn.Module):
 
     def __init__(self, input_dimension):
         super(CNN, self).__init__()
-        # TODO initialize model layers here
+        self.flatten = Flatten()
+        self.layer_stack = nn.Sequential(
+              nn.Conv2d(1, 32, (3, 3)),
+              nn.ReLU(),
+              nn.MaxPool2d((2, 2)),
+              nn.Conv2d(32, 64, (3, 3)),
+              nn.ReLU(),
+              nn.MaxPool2d((2, 2)),
+              nn.Flatten(),
+              nn.Linear(2880, 128),
+              nn.Dropout(0.5),
+              nn.Linear(128, 20)
+            )
 
     def forward(self, x):
-
-        # TODO use model layers to predict the two digits
-
-        return out_first_digit, out_second_digit
+        logits = self.layer_stack(x)
+        return logits[:, :10], logits[:, 10:]
 
 def main():
     X_train, y_train, X_test, y_test = U.get_data(path_to_data_dir, use_mini_dataset)
