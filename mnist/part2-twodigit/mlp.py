@@ -4,6 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from train_utils import batchify_data, run_epoch, train_model, Flatten
 import utils_multiMNIST as U
+import darts
+
 path_to_data_dir = '/Users/ssotomayorba/Documents/Personal/projects/machine-learning-projects/mnist/Datasets/'
 use_mini_dataset = True
 

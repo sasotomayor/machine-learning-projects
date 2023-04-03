@@ -54,7 +54,6 @@ class NeuralNetwork():
     def train(self, x1, x2, y):
         ### Forward propagation ###
         input_values = np.matrix([[x1],[x2]]) # 2 by 1
-        print(input_values, y)
         
         # Calculate the input and activation of the hidden layer
         hidden_layer_weighted_input = np.matmul(self.input_to_hidden_weights, input_values) + self.biases # (3 by 1 matrix)
@@ -63,39 +62,23 @@ class NeuralNetwork():
         output = np.matmul(self.hidden_to_output_weights, hidden_layer_activation)
         output_layer_activation_vect = np.vectorize(output_layer_activation)
         activated_output = output_layer_activation_vect(output)
-        print(activated_output)
-        #print('Loss {}'.format(0.5**(y-int(activated_output))**2))
 
         ### Backpropagation ###
 
         # Compute gradients
-        output_layer_activation_derivative_vect = np.vectorize(output_layer_activation_derivative)
-        rectified_linear_unit_derivative_vect = np.vectorize(rectified_linear_unit_derivative)
-        #print(output_layer_activation_derivative_vect(activated_output))
-        output_layer_error = -1*(y - activated_output)*output_layer_activation_derivative_vect(activated_output)
-        #print(output_layer_error)
-        #print(rectified_linear_unit_derivative_vect(hidden_layer_activation).shape, 'nc')
-        #print(self.hidden_to_output_weights.shape, 'ne')
-        #print(output_layer_error, 'nf')
-        #print(np.multiply(self.hidden_to_output_weights.T, rectified_linear_unit_derivative_vect(hidden_layer_activation)))
-        hidden_layer_error = int(output_layer_error) * np.multiply(self.hidden_to_output_weights.T, rectified_linear_unit_derivative_vect(hidden_layer_activation))
-        #print(hidden_layer_error, 'nd')
-
-        bias_gradients = hidden_layer_error
-        print(hidden_layer_activation.shape)
-        print(output_layer_error.shape, 'n')
-        hidden_to_output_weight_gradients = np.matmul(output_layer_error, hidden_layer_activation.T)
-        #print(hidden_to_output_weight_gradients)
-        input_to_hidden_weight_gradients = np.matmul(hidden_layer_error, input_values.T)
-        #print(input_to_hidden_weight_gradients)
-
+        output_layer_error = .5 * np.power(y - activated_output, 2)
+        hidden_layer_error = np.multiply(np.sum(np.multiply(self.hidden_to_output_weights, activated_output - y)), np.vectorize(rectified_linear_unit_derivative)(hidden_layer_activation))
+        bias_gradients = np.multiply(np.vectorize(rectified_linear_unit_derivative)(hidden_layer_weighted_input), 
+                                     np.transpose(np.multiply(self.hidden_to_output_weights, (activated_output - y))))
+        hidden_to_output_weight_gradients = np.transpose(np.multiply(np.multiply(hidden_layer_activation, output_layer_activation_derivative(output)), (activated_output - y)))
+        input_to_hidden_weight_gradients = np.multiply(np.multiply(np.multiply(np.vectorize(rectified_linear_unit_derivative)(hidden_layer_weighted_input), np.transpose(input_values)), 
+                                                                   np.transpose(self.hidden_to_output_weights)), 
+                                                       (activated_output - y))
+        
         # Use gradients to adjust weights and biases using gradient descent
-        self.biases = self.biases - self.learning_rate*bias_gradients
-        self.input_to_hidden_weights = self.input_to_hidden_weights - self.learning_rate*input_to_hidden_weight_gradients
-        self.hidden_to_output_weights = self.hidden_to_output_weights - self.learning_rate*hidden_to_output_weight_gradients
-        print('Biases {}'.format(self.biases))
-        print('Hidden weights {}'.format(self.input_to_hidden_weights))
-        print('Output weights {}'.format(self.hidden_to_output_weights))
+        self.biases -= self.learning_rate * bias_gradients
+        self.input_to_hidden_weights -= self.learning_rate * input_to_hidden_weight_gradients
+        self.hidden_to_output_weights -= self.learning_rate * hidden_to_output_weight_gradients
 
     def predict(self, x1, x2):
 
@@ -114,9 +97,7 @@ class NeuralNetwork():
     # Run this to train your neural network once you complete the train method
     def train_neural_network(self):
 
-        for epoch in range(1):
-        #for epoch in range(self.epochs_to_train):
-            print(epoch)
+        for epoch in range(self.epochs_to_train):
             for x,y in self.training_points:
                 self.train(x[0], x[1], y)
 
