@@ -101,9 +101,9 @@ def perceptron_single_step_update(
         the updated offset parameter `theta_0` as a floating point number
     """
     if (np.matmul(current_theta, feature_vector) + current_theta_0) * label <= 0:
-        return (current_theta + feature_vector * label, current_theta_0 + label)
+        return (current_theta + feature_vector * label, current_theta_0 + label, True)
     else:
-        return (current_theta, current_theta_0)
+        return (current_theta, current_theta_0, False)
 
 
 
@@ -132,15 +132,17 @@ def perceptron(feature_matrix, labels, T):
 
     theta = np.zeros(len(feature_matrix[0]))
     theta_0 = 0
+    errors = np.zeros(10)
 
     for t in range(T):
         for i in get_order(len(labels)):
-            theta, theta_0 = perceptron_single_step_update(
+            theta, theta_0, error = perceptron_single_step_update(
                 feature_matrix[i],
                 labels[i],
                 theta,
                 theta_0)
-    return (theta, theta_0)
+            if error: errors[i] += 1
+    return (theta, theta_0, errors)
 
 
 
